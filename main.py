@@ -16,32 +16,20 @@ def write_responses(result):
 
 def process_queries(queries):
     result = []
-    # Keep list of all existing (i.e. not deleted yet) contacts.
-    contacts = []
+    # Use a dictionary to store the phone book entries
+    phone_book = {}
     for cur_query in queries:
         if cur_query.type == 'add':
-            # if we already have contact with such number,
-            # we should rewrite contact's name
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    contact.name = cur_query.name
-                    break
-            else: # otherwise, just add it
-                contacts.append(cur_query)
+            # Add the new entry to the dictionary
+            phone_book[cur_query.number] = cur_query.name
         elif cur_query.type == 'del':
-            for j in range(len(contacts)):
-                if contacts[j].number == cur_query.number:
-                    contacts.pop(j)
-                    break
+            # Remove the entry from the dictionary if it exists
+            if cur_query.number in phone_book:
+                del phone_book[cur_query.number]
         else:
-            response = 'not found'
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    response = contact.name
-                    break
-            result.append(response)
+            # Look up the entry in the dictionary and add the result to the output list
+            result.append(phone_book.get(cur_query.number, 'not found'))
     return result
 
 if __name__ == '__main__':
     write_responses(process_queries(read_queries()))
-
